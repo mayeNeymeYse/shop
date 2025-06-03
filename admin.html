@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration - Galerie</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="admin-container">
+  <!-- Header Admin -->
+  <div class="admin-header">
+    <div class="admin-nav">
+      <h1>⚙️ Administration</h1>
+      <div class="admin-actions">
+        <span class="session-info" id="sessionInfo">Session active</span>
+        <button class="logout-btn" id="logoutBtn">🚪 Déconnexion</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu Principal -->
+  <div class="admin-content">
+    <div class="content-header">
+      <h2>Gestion des Stocks</h2>
+      <button class="add-btn" id="addBtn">➕ Ajouter un contenu</button>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="quick-stats" id="quickStats">
+      <!-- Statistiques injectées ici -->
+    </div>
+
+    <!-- Formulaire d'ajout/modification -->
+    <div id="formModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Ajouter un contenu</h3>
+          <button class="close-btn" id="closeBtn">✕</button>
+        </div>
+
+        <form id="contentForm" class="admin-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="contentId">ID *</label>
+              <input type="text" id="contentId" required placeholder="ex: VID001">
+            </div>
+
+            <div class="form-group">
+              <label for="contentType">Type *</label>
+              <select id="contentType" required>
+                <option value="">Sélectionner</option>
+                <option value="video">🎬 Vidéo</option>
+                <option value="photo">📸 Photo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="contentTitle">Titre *</label>
+            <input type="text" id="contentTitle" required placeholder="Titre du contenu">
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="contentPrice">Prix (crédits) *</label>
+              <input type="number" id="contentPrice" required min="0" step="1" placeholder="0">
+            </div>
+
+            <div class="form-group">
+              <label for="contentStock">Stock *</label>
+              <input type="number" id="contentStock" required min="0" step="1" placeholder="0">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="cancelBtn">Annuler</button>
+            <button type="submit" class="btn-primary" id="saveBtn">💾 Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tableau des contenus -->
+    <div class="admin-table-container">
+      <table class="admin-table">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Contenu</th>
+          <th>Prix</th>
+          <th>Stock</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="adminTableBody">
+        <!-- Données injectées ici -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="env.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

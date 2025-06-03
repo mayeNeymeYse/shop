@@ -1,10 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie - Stocks Disponibles</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div class="container">
+    <div class="header">
+        <div class="header-content">
+            <div class="title-section">
+                <h1>📸 Ma Galerie</h1>
+                <p>Stocks disponibles de contenus vidéo et photo</p>
+            </div>
 
+            <!-- Bouton admin conditionnel -->
+            <div class="admin-access" id="adminAccess" style="display: none;">
+                <button class="admin-btn" onclick="goToAdmin()">
+                    ⚙️ Administration
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+        <!-- Les statistiques seront injectées ici -->
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Inventaire des Stocks</h2>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Contenu</th>
+                    <th>Prix (Crédits)</th>
+                    <th>Stock</th>
+                </tr>
+                </thead>
+                <tbody id="stockTableBody">
+                <!-- Les données seront injectées ici -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="env.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

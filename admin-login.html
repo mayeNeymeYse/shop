@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Galerie</title>
+  <link rel="stylesheet" href="css/admin-login.css">
+</head>
+<body>
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>🔐 Administration</h1>
+      <p>Accès réservé aux administrateurs</p>
+    </div>
+
+    <form id="loginForm" class="login-form">
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur</label>
+        <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                autocomplete="username"
+                placeholder="Entrez votre nom d'utilisateur"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                placeholder="Entrez votre mot de passe"
+        >
+      </div>
+
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        <span class="btn-text">Se connecter</span>
+        <span class="btn-loader" style="display: none;">⏳</span>
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>Accès sécurisé • Session automatique</p>
+    </div>
+  </div>
+</div>
+
+<script src="env.js"></script>
+<script src="js/config.js"></script>
+<script src="js/admin-login.js"></script>
+</body>
+</html>

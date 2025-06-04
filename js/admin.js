@@ -206,6 +206,7 @@ function closeModal() {
 function handleFormSubmit(e) {
     e.preventDefault();
 
+
     const formData = {
         id: document.getElementById('contentId').value.trim(),
         title: document.getElementById('contentTitle').value.trim(),
@@ -213,6 +214,11 @@ function handleFormSubmit(e) {
         price: parseInt(document.getElementById('contentPrice').value),
         stock: parseInt(document.getElementById('contentStock').value)
     };
+
+    if (!formData.id && !editingId) {
+        generateAutoId();
+        formData.id = document.getElementById('contentId').value;
+    }
 
     if (!formData.id || !formData.title || !formData.type) {
         showNotification('Veuillez remplir tous les champs obligatoires', 'error');
@@ -343,3 +349,41 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+document.getElementById('contentType').addEventListener('change', generateAutoId);
+
+function generateAutoId() {
+    const typeSelect = document.getElementById('contentType');
+    const idInput = document.getElementById('contentId');
+
+    if (editingId) return;
+
+    const selectedType = typeSelect.value;
+    if (!selectedType) {
+        idInput.value = '';
+        return;
+    }
+
+    const prefix = selectedType === 'video' ? 'VID' : 'PHO';
+
+    const existingIds = adminStockData
+        .filter(item => item.id.startsWith(prefix))
+        .map(item => {
+            const numPart = item.id.slice(3);
+            return parseInt(numPart, 10);
+        })
+        .filter(num => !isNaN(num));
+
+    const nextNumber = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
+
+    const formattedNumber = String(nextNumber).padStart(3, '0');
+
+    const newId = `${prefix}${formattedNumber}`;
+
+    idInput.value = newId;
+
+    idInput.style.background = '#e6fffa';
+    setTimeout(() => {
+        idInput.style.background = '';
+    }, 1000);
+}

@@ -41,6 +41,13 @@ const stockData = [
         price: 20,
         stock: 1
     },
+    {
+        id: "PHO003",
+        title: "Photo de ma bite avec ma tête non flouté (crédit ou photo équivalente)",
+        type: "photo",
+        price: 50,
+        stock: 3
+    }
 ];
 
 function getAllStocks() {

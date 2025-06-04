@@ -1,105 +1,28 @@
-name: Deploy to GitHub Pages
+name: Simple GitHub Pages Deploy
 
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Check if secrets are configured
+      - name: Replace secrets in env.js
         run: |
-          if [ -z "${{ secrets.ADMIN_USERNAME }}" ] || [ -z "${{ secrets.ADMIN_PASSWORD }}" ]; then
-            echo "⚠️ Secrets non configurés - Le fichier env.js gardera les valeurs par défaut"
-            echo "   Pour configurer: Repository Settings → Secrets → Actions"
-            echo "   Ajoutez: ADMIN_USERNAME et ADMIN_PASSWORD"
-          else
-            echo "✅ Secrets GitHub configurés, remplacement en cours..."
-          fi
+          sed -i 's/{{GITHUB_ADMIN_USERNAME}}/admin/g' env.js
+          sed -i 's/{{GITHUB_ADMIN_PASSWORD}}/gallery2024/g' env.js
 
-      - name: Replace placeholders in env.js with GitHub secrets
-        run: |
-          if [ -f "env.js" ]; then
-            echo "📝 Remplacement des placeholders dans env.js..."
-          
-            # Faire une copie de sauvegarde
-            cp env.js env.js.backup
-          
-            # Remplacer les placeholders avec les secrets (si définis)
-            if [ -n "${{ secrets.ADMIN_USERNAME }}" ]; then
-              sed -i "s/{{GITHUB_ADMIN_USERNAME}}/${{ secrets.ADMIN_USERNAME }}/g" env.js
-              echo "✅ ADMIN_USERNAME remplacé"
-            else
-              # Fallback vers valeur par défaut
-              sed -i "s/{{GITHUB_ADMIN_USERNAME}}/admin/g" env.js
-              echo "⚠️ ADMIN_USERNAME → valeur par défaut (admin)"
-            fi
-          
-            if [ -n "${{ secrets.ADMIN_PASSWORD }}" ]; then
-              sed -i "s/{{GITHUB_ADMIN_PASSWORD}}/${{ secrets.ADMIN_PASSWORD }}/g" env.js
-              echo "✅ ADMIN_PASSWORD remplacé"
-            else
-              # Fallback vers valeur par défaut
-              sed -i "s/{{GITHUB_ADMIN_PASSWORD}}/gallery2024/g" env.js
-              echo "⚠️ ADMIN_PASSWORD → valeur par défaut (gallery2024)"
-            fi
-          
-            echo "📄 Fichier env.js mis à jour avec succès"
-          else
-            echo "❌ Fichier env.js non trouvé!"
-            exit 1
-          fi
-
-      - name: Verify env.js content (sans révéler les secrets)
-        run: |
-          echo "=== Vérification du fichier env.js ==="
-          if grep -q "{{GITHUB_" env.js; then
-            echo "❌ Des placeholders n'ont pas été remplacés!"
-            grep "{{GITHUB_" env.js
-            exit 1
-          else
-            echo "✅ Tous les placeholders ont été remplacés"
-          fi
-          
-          # Afficher le contenu en masquant les valeurs sensibles
-          echo "📋 Structure du fichier (valeurs masquées):"
-          sed 's/ADMIN_USERNAME: .*/ADMIN_USERNAME: "***",/' env.js | sed 's/ADMIN_PASSWORD: .*/ADMIN_PASSWORD: "***",/'
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Post-deployment info
-        run: |
-          echo "🚀 Déploiement terminé!"
-          echo "🌐 Site: ${{ steps.deployment.outputs.page_url }}"
-          echo "🔧 Test env.js: ${{ steps.deployment.outputs.page_url }}env.js"
-          echo ""
-          if [ -n "${{ secrets.ADMIN_USERNAME }}" ]; then
-            echo "✅ Identifiants personnalisés utilisés"
-          else
-            echo "⚠️ Identifiants par défaut: admin / gallery2024"
-          fi
+      - uses: actions/deploy-pages@v4

@@ -38,9 +38,6 @@ function renderTable() {
     tableBody.innerHTML = currentData.map(item => `
         <tr>
             <td>
-                <span class="id-badge">${item.id}</span>
-            </td>
-            <td>
                 <div class="title-type">
                     <span class="title-cell">${item.title}</span>
                     <span class="type-badge type-${item.type}">

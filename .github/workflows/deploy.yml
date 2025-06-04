@@ -2,9 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,25 +15,46 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Debug - List files before
+        run: |
+          echo "=== Files before creating env.js ==="
+          ls -la
 
       - name: Create environment file
         run: |
-          echo "
+          echo "Creating env.js with secrets..."
+          cat > env.js << 'EOL'
+          // Configuration générée automatiquement pour GitHub Pages
+          // Généré le: $(date)
           window.ENV = {
               ADMIN_USERNAME: '${{ secrets.ADMIN_USERNAME }}',
               ADMIN_PASSWORD: '${{ secrets.ADMIN_PASSWORD }}',
               SESSION_DURATION_MINUTES: 60,
               APP_NAME: 'Ma Galerie',
               DEBUG_MODE: false
-          };" > env.js
+          };
+          
+          console.log('🔧 Configuration env.js chargée depuis GitHub Actions');
+          EOL
+
+      - name: Debug - Verify env.js creation
+        run: |
+          echo "=== Checking if env.js was created ==="
+          ls -la env.js || echo "env.js not found!"
+          echo "=== Content of env.js ==="
+          cat env.js || echo "Cannot read env.js"
+          echo "=== All files in directory ==="
+          ls -la
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

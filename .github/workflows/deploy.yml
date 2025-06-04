@@ -16,45 +16,69 @@ concurrency:
 
 jobs:
   build-and-deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug - List files before
+      - name: Check if secrets are configured
         run: |
-          echo "=== Files before creating env.js ==="
-          ls -la
+          if [ -z "${{ secrets.ADMIN_USERNAME }}" ] || [ -z "${{ secrets.ADMIN_PASSWORD }}" ]; then
+            echo "⚠️ Secrets non configurés - Le fichier env.js gardera les valeurs par défaut"
+            echo "   Pour configurer: Repository Settings → Secrets → Actions"
+            echo "   Ajoutez: ADMIN_USERNAME et ADMIN_PASSWORD"
+          else
+            echo "✅ Secrets GitHub configurés, remplacement en cours..."
+          fi
 
-      - name: Create environment file
+      - name: Replace placeholders in env.js with GitHub secrets
         run: |
-          echo "Creating env.js with secrets..."
-          cat > env.js << 'EOL'
-          // Configuration générée automatiquement pour GitHub Pages
-          // Généré le: $(date)
-          window.ENV = {
-              ADMIN_USERNAME: '${{ secrets.ADMIN_USERNAME }}',
-              ADMIN_PASSWORD: '${{ secrets.ADMIN_PASSWORD }}',
-              SESSION_DURATION_MINUTES: 60,
-              APP_NAME: 'Ma Galerie',
-              DEBUG_MODE: false
-          };
+          if [ -f "env.js" ]; then
+            echo "📝 Remplacement des placeholders dans env.js..."
           
-          console.log('🔧 Configuration env.js chargée depuis GitHub Actions');
-          EOL
+            # Faire une copie de sauvegarde
+            cp env.js env.js.backup
+          
+            # Remplacer les placeholders avec les secrets (si définis)
+            if [ -n "${{ secrets.ADMIN_USERNAME }}" ]; then
+              sed -i "s/{{GITHUB_ADMIN_USERNAME}}/${{ secrets.ADMIN_USERNAME }}/g" env.js
+              echo "✅ ADMIN_USERNAME remplacé"
+            else
+              # Fallback vers valeur par défaut
+              sed -i "s/{{GITHUB_ADMIN_USERNAME}}/admin/g" env.js
+              echo "⚠️ ADMIN_USERNAME → valeur par défaut (admin)"
+            fi
+          
+            if [ -n "${{ secrets.ADMIN_PASSWORD }}" ]; then
+              sed -i "s/{{GITHUB_ADMIN_PASSWORD}}/${{ secrets.ADMIN_PASSWORD }}/g" env.js
+              echo "✅ ADMIN_PASSWORD remplacé"
+            else
+              # Fallback vers valeur par défaut
+              sed -i "s/{{GITHUB_ADMIN_PASSWORD}}/gallery2024/g" env.js
+              echo "⚠️ ADMIN_PASSWORD → valeur par défaut (gallery2024)"
+            fi
+          
+            echo "📄 Fichier env.js mis à jour avec succès"
+          else
+            echo "❌ Fichier env.js non trouvé!"
+            exit 1
+          fi
 
-      - name: Debug - Verify env.js creation
+      - name: Verify env.js content (sans révéler les secrets)
         run: |
-          echo "=== Checking if env.js was created ==="
-          ls -la env.js || echo "env.js not found!"
-          echo "=== Content of env.js ==="
-          cat env.js || echo "Cannot read env.js"
-          echo "=== All files in directory ==="
-          ls -la
+          echo "=== Vérification du fichier env.js ==="
+          if grep -q "{{GITHUB_" env.js; then
+            echo "❌ Des placeholders n'ont pas été remplacés!"
+            grep "{{GITHUB_" env.js
+            exit 1
+          else
+            echo "✅ Tous les placeholders ont été remplacés"
+          fi
+          
+          # Afficher le contenu en masquant les valeurs sensibles
+          echo "📋 Structure du fichier (valeurs masquées):"
+          sed 's/ADMIN_USERNAME: .*/ADMIN_USERNAME: "***",/' env.js | sed 's/ADMIN_PASSWORD: .*/ADMIN_PASSWORD: "***",/'
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -67,3 +91,15 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Post-deployment info
+        run: |
+          echo "🚀 Déploiement terminé!"
+          echo "🌐 Site: ${{ steps.deployment.outputs.page_url }}"
+          echo "🔧 Test env.js: ${{ steps.deployment.outputs.page_url }}env.js"
+          echo ""
+          if [ -n "${{ secrets.ADMIN_USERNAME }}" ]; then
+            echo "✅ Identifiants personnalisés utilisés"
+          else
+            echo "⚠️ Identifiants par défaut: admin / gallery2024"
+          fi
